@@ -1,11 +1,26 @@
 export const DIGITS = '0123456789abcdef';
 
 export function generateSecret(
-  _length: number,
-  _base: number,
-  _random: () => number = Math.random,
+  length: number,
+  base: number,
+  random: () => number = Math.random,
 ): string {
-  throw new Error('Not implemented');
+  createDigitValidator(base);
+  if (!Number.isInteger(length) || length < 1 || length > base) {
+    throw new RangeError('Length must be between 1 and the base');
+  }
+
+  let available = DIGITS.slice(0, base).split('');
+  return Array.from({ length }, () => {
+    const value = random();
+    if (!(value >= 0 && value < 1)) {
+      throw new RangeError('Random must return a number from 0 up to but not including 1');
+    }
+    const index = Math.floor(value * available.length);
+    const digit = available[index];
+    available = available.filter((_, digitIndex) => digitIndex !== index);
+    return digit;
+  }).join('');
 }
 
 export function createDigitValidator(base: number): (char: string) => boolean {
