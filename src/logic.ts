@@ -28,8 +28,21 @@ export interface GuessResult {
   readonly cows: number;
 }
 
-export function evaluateGuess(_secret: string, _guess: string): GuessResult {
-  throw new Error('Not implemented');
+export function evaluateGuess(secret: string, guess: string): GuessResult {
+  const secretDigits = secret.toLowerCase().split('');
+  const guessDigits = guess.toLowerCase().split('');
+  const secretSet = new Set(secretDigits);
+  if (
+    secretDigits.length !== guessDigits.length ||
+    secretSet.size !== secretDigits.length ||
+    new Set(guessDigits).size !== guessDigits.length
+  ) {
+    throw new RangeError('Secret and guess must have the same length and unique digits');
+  }
+
+  const bulls = guessDigits.filter((digit, index) => digit === secretDigits[index]).length;
+  const matches = guessDigits.filter((digit) => secretSet.has(digit)).length;
+  return { bulls, cows: matches - bulls };
 }
 
 export function createDigitValidator(base: number): (char: string) => boolean {
