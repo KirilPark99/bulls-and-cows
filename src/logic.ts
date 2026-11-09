@@ -9,6 +9,16 @@ export function createDigitValidator(base: number): (char: string) => boolean {
   return (char) => char.length === 1 && allowedDigits.includes(char.toLowerCase());
 }
 
-export function isValidGuess(_guess: string, _length: number, _base: number): boolean {
-  throw new Error('Not implemented');
+export function isValidGuess(guess: string, length: number, base: number): boolean {
+  const isDigit = createDigitValidator(base);
+  const digits = guess.toLowerCase().split('');
+
+  return (
+    Number.isInteger(length) &&
+    length >= 1 &&
+    length <= base &&
+    digits.length === length &&
+    digits.every(isDigit) &&
+    new Set(digits).size === length
+  );
 }
