@@ -8,3 +8,7 @@ export function createDigitValidator(base: number): (char: string) => boolean {
   const allowedDigits = DIGITS.slice(0, base);
   return (char) => char.length === 1 && allowedDigits.includes(char.toLowerCase());
 }
+
+export function isValidGuess(_guess: string, _length: number, _base: number): boolean {
+  throw new Error('Not implemented');
+}
