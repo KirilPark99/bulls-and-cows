@@ -1,5 +1,34 @@
 import { describe, expect, it } from 'vitest';
-import { createDigitValidator, isValidGuess, generateSecret } from '../src/logic.js';
+import { createDigitValidator, isValidGuess, generateSecret, evaluateGuess } from '../src/logic.js';
+
+describe('evaluateGuess', () => {
+  it.each([
+    ['1234', '1234', 4, 0],
+    ['1234', '4321', 0, 4],
+    ['1234', '1562', 1, 1],
+    ['1234', '5678', 0, 0],
+    ['0123', '0132', 2, 2],
+    ['aB0f', 'Ab0F', 4, 0],
+    ['ab01', '1BA0', 1, 3],
+    ['', '', 0, 0],
+  ])('compares %s with %s', (secret, guess, bulls, cows) => {
+    expect(evaluateGuess(secret, guess)).toEqual({ bulls, cows });
+  });
+
+  it('does not change an earlier result', () => {
+    const result = evaluateGuess('1234', '4321');
+    evaluateGuess('1234', '1234');
+    expect(result).toEqual({ bulls: 0, cows: 4 });
+  });
+
+  it.each([
+    ['1234', '123'],
+    ['1123', '1234'],
+    ['1234', '1111'],
+  ])('rejects different lengths or repeated digits', (secret, guess) => {
+    expect(() => evaluateGuess(secret, guess)).toThrow(RangeError);
+  });
+});
 
 describe('generateSecret', () => {
   it('keeps leading zeroes and removes selected digits from the pool', () => {

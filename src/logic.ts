@@ -23,6 +23,15 @@ export function generateSecret(
   }).join('');
 }
 
+export interface GuessResult {
+  readonly bulls: number;
+  readonly cows: number;
+}
+
+export function evaluateGuess(_secret: string, _guess: string): GuessResult {
+  throw new Error('Not implemented');
+}
+
 export function createDigitValidator(base: number): (char: string) => boolean {
   if (!Number.isInteger(base) || base < 2 || base > DIGITS.length) {
     throw new RangeError('Base must be an integer from 2 to 16');
