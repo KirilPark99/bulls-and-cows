@@ -1,5 +1,34 @@
 import { describe, expect, it } from 'vitest';
-import { createDigitValidator, isValidGuess } from '../src/logic.js';
+import { createDigitValidator, isValidGuess, generateSecret } from '../src/logic.js';
+
+describe('generateSecret', () => {
+  it('keeps leading zeroes and removes selected digits from the pool', () => {
+    expect(generateSecret(4, 10, () => 0)).toBe('0123');
+    expect(generateSecret(4, 16, () => 0.999)).toBe('fedc');
+    expect(generateSecret(2, 2, () => 0)).toBe('01');
+  });
+
+  it.each([2, 8, 10, 16])('generates unique valid digits for base %s', (base) => {
+    const length = Math.min(6, base);
+    const secret = generateSecret(length, base, () => 0.5);
+    expect(isValidGuess(secret, length, base)).toBe(true);
+    expect(generateSecret(length, base, () => 0.5)).toBe(secret);
+  });
+
+  it.each([
+    [3, 2],
+    [0, 10],
+    [-1, 10],
+    [2.5, 10],
+    [2, 17],
+  ])('rejects impossible settings %s / %s', (length, base) => {
+    expect(() => generateSecret(length, base, () => 0)).toThrow(RangeError);
+  });
+
+  it.each([-0.1, 1, NaN])('rejects random value %s', (value) => {
+    expect(() => generateSecret(2, 10, () => value)).toThrow(RangeError);
+  });
+});
 
 describe('createDigitValidator', () => {
   it.each([
