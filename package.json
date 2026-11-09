@@ -1,0 +1,42 @@
+{
+  "name": "bulls-and-cows",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.22.1"
+  },
+  "scripts": {
+    "start": "npm run build && http-server dist -c-1",
+    "build": "tsc -p tsconfig.build.json && node scripts/copy-assets.mjs",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "vitest run --passWithNoTests",
+    "test:watch": "vitest",
+    "prepare": "husky",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist"
+  },
+  "lint-staged": {
+    "*.{ts,mjs}": [
+      "eslint",
+      "prettier --check"
+    ],
+    "*.{json,html,css,md}": "prettier --check"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.14.0",
+    "gh-pages": "^6.3.0",
+    "globals": "^17.14.0",
+    "http-server": "^14.1.1",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.6.0",
+    "prettier": "^3.9.10",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.72.2",
+    "vitest": "^5.1.0"
+  }
+}
