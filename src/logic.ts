@@ -1,0 +1,93 @@
+export const DIGITS = '0123456789abcdef';
+
+export function generateSecret(
+  length: number,
+  base: number,
+  random: () => number = Math.random,
+): string {
+  createDigitValidator(base);
+  if (!Number.isInteger(length) || length < 1 || length > base) {
+    throw new RangeError('Length must be between 1 and the base');
+  }
+
+  // ponytail: at most 16 digits; use a partial Fisher–Yates shuffle for a larger alphabet.
+  let available = DIGITS.slice(0, base).split('');
+  return Array.from({ length }, () => {
+    const value = random();
+    if (!(value >= 0 && value < 1)) {
+      throw new RangeError('Random must return a number from 0 up to but not including 1');
+    }
+    const index = Math.floor(value * available.length);
+    const digit = available[index];
+    available = available.filter((_, digitIndex) => digitIndex !== index);
+    return digit;
+  }).join('');
+}
+
+export interface GuessResult {
+  readonly bulls: number;
+  readonly cows: number;
+}
+
+export function evaluateGuess(secret: string, guess: string): GuessResult {
+  const secretDigits = secret.toLowerCase().split('');
+  const guessDigits = guess.toLowerCase().split('');
+  const secretSet = new Set(secretDigits);
+  if (
+    secretDigits.length !== guessDigits.length ||
+    secretSet.size !== secretDigits.length ||
+    new Set(guessDigits).size !== guessDigits.length
+  ) {
+    throw new RangeError('Secret and guess must have the same length and unique digits');
+  }
+
+  const bulls = guessDigits.filter((digit, index) => digit === secretDigits[index]).length;
+  const matches = guessDigits.filter((digit) => secretSet.has(digit)).length;
+  return { bulls, cows: matches - bulls };
+}
+
+const secretCounts = new Map<string, number>();
+
+export function countPossibleSecrets(length: number, base: number): number {
+  if (
+    !Number.isInteger(length) ||
+    !Number.isInteger(base) ||
+    length < 0 ||
+    length > base ||
+    base < 0 ||
+    base > DIGITS.length
+  ) {
+    throw new RangeError('Length and base must describe a valid permutation');
+  }
+
+  const key = `${length}:${base}`;
+  const cached = secretCounts.get(key);
+  if (cached !== undefined) return cached;
+
+  const count = length === 0 ? 1 : base * countPossibleSecrets(length - 1, base - 1);
+  secretCounts.set(key, count);
+  return count;
+}
+
+export function createDigitValidator(base: number): (char: string) => boolean {
+  if (!Number.isInteger(base) || base < 2 || base > DIGITS.length) {
+    throw new RangeError('Base must be an integer from 2 to 16');
+  }
+
+  const allowedDigits = DIGITS.slice(0, base);
+  return (char) => char.length === 1 && allowedDigits.includes(char.toLowerCase());
+}
+
+export function isValidGuess(guess: string, length: number, base: number): boolean {
+  const isDigit = createDigitValidator(base);
+  const digits = guess.toLowerCase().split('');
+
+  return (
+    Number.isInteger(length) &&
+    length >= 1 &&
+    length <= base &&
+    digits.length === length &&
+    digits.every(isDigit) &&
+    new Set(digits).size === length
+  );
+}
