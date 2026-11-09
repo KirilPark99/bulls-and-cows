@@ -45,8 +45,27 @@ export function evaluateGuess(secret: string, guess: string): GuessResult {
   return { bulls, cows: matches - bulls };
 }
 
-export function countPossibleSecrets(_length: number, _base: number): number {
-  throw new Error('Not implemented');
+const secretCounts = new Map<string, number>();
+
+export function countPossibleSecrets(length: number, base: number): number {
+  if (
+    !Number.isInteger(length) ||
+    !Number.isInteger(base) ||
+    length < 0 ||
+    length > base ||
+    base < 0 ||
+    base > DIGITS.length
+  ) {
+    throw new RangeError('Length and base must describe a valid permutation');
+  }
+
+  const key = `${length}:${base}`;
+  const cached = secretCounts.get(key);
+  if (cached !== undefined) return cached;
+
+  const count = length === 0 ? 1 : base * countPossibleSecrets(length - 1, base - 1);
+  secretCounts.set(key, count);
+  return count;
 }
 
 export function createDigitValidator(base: number): (char: string) => boolean {
