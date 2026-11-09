@@ -10,6 +10,7 @@ export function generateSecret(
     throw new RangeError('Length must be between 1 and the base');
   }
 
+  // ponytail: at most 16 digits; use a partial Fisher–Yates shuffle for a larger alphabet.
   let available = DIGITS.slice(0, base).split('');
   return Array.from({ length }, () => {
     const value = random();
