@@ -1,5 +1,35 @@
 import { describe, expect, it } from 'vitest';
-import { createDigitValidator, isValidGuess, generateSecret, evaluateGuess } from '../src/logic.js';
+import {
+  createDigitValidator,
+  isValidGuess,
+  generateSecret,
+  evaluateGuess,
+  countPossibleSecrets,
+} from '../src/logic.js';
+
+describe('countPossibleSecrets', () => {
+  it.each([
+    [0, 0, 1],
+    [0, 10, 1],
+    [2, 2, 2],
+    [4, 10, 5040],
+    [3, 8, 336],
+    [6, 16, 5765760],
+  ])('counts length %s in base %s', (length, base, expected) => {
+    expect(countPossibleSecrets(length, base)).toBe(expected);
+    expect(countPossibleSecrets(length, base)).toBe(expected);
+  });
+
+  it.each([
+    [-1, 10],
+    [3, 2],
+    [2, 17],
+    [1.5, 10],
+    [1, NaN],
+  ])('rejects invalid settings %s / %s', (length, base) => {
+    expect(() => countPossibleSecrets(length, base)).toThrow(RangeError);
+  });
+});
 
 describe('evaluateGuess', () => {
   it.each([
